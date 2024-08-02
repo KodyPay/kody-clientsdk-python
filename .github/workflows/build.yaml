@@ -52,7 +52,7 @@ jobs:
       - name: Generate GRPC Sources
         run: |
           mkdir generated
-          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --pyi_out=./generated --grpc_python_out=./generated
+          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --grpc_python_out=./generated
           rm -rf proto
       - name: Add init files
         run: |
