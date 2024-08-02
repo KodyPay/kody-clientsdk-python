@@ -1,14 +1,3 @@
-# Kody Python gRPC client
-
-## Description
-The Kody gRPC Client is an SDK generated from protobuf protocols to facilitate communication with the Kody Payments Gateway. This library provides a simple and efficient way to integrate Kody payment functionalities into your applications.
-
-## Installation
-Add to your `requirements.txt` any package from the release list
-`https://github.com/KodyPay/kody-clientsdk-python-3.6/releases/download/v<version>/kody_clientsdk_python-<version>.tar.gz`
-
-## Sample usage
-```python
 import logging
 
 import grpc
@@ -19,6 +8,7 @@ host = "grpc.kodypay.com:443"
 storeId = "<YOUR_STORE_ID>"
 key = "<YOUR_KEY>"
 
+
 def run():
     with grpc.secure_channel(target=host,
                              credentials=grpc.ssl_channel_credentials()) as channel:
@@ -28,10 +18,10 @@ def run():
             metadata=[("x-api-key", key)]
         )
 
-    logging.info(f"Response received: {response.terminals}")
+    for i, terminal in enumerate(response.terminals):
+        logging.info(f"Terminal {i}: id=[{terminal.terminal_id}], online=[{terminal.online}]")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     run()
-``` 
