@@ -67,7 +67,7 @@ jobs:
         run: |
           echo "__version__ = '${{ needs.tagging.outputs.version }}'" > src/kody_clientsdk_python/__init__.py
       - name: Build
-        run: python -m build
+        run: python ./setup.py dist
       - name: Upload dist directory as artifact
         uses: actions/upload-artifact@v4
         with:
