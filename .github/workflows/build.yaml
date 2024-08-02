@@ -1,0 +1,96 @@
+name: Build
+
+on:
+  repository_dispatch:
+    types: [ tag-push ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'source tag'
+        required: true
+        type: string
+
+jobs:
+  tagging:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ env.tag }}
+      version: ${{ env.version }}
+      prerelease: ${{ env.prerelease }}
+    steps:
+      - name: Use the tag from the event
+        id: tag
+        run: |
+          TAG="${{ inputs.tag || github.event.client_payload.tag }}"
+          VERSION=${TAG#v}
+          echo "TAG from event: ${TAG}"
+          echo "tag=${TAG}" >> $GITHUB_ENV
+          echo "version=${VERSION}">> $GITHUB_ENV
+          if [[ "${TAG}" == *-* ]]; then echo "prerelease=true" >> $GITHUB_ENV; else echo "prerelease=false" >> $GITHUB_ENV; fi
+
+  build:
+    needs:
+      - tagging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.6.15'
+      - name: Upgrade python tools
+        run: python -m pip install --upgrade pip build setuptools wheel
+      - name: Install Requirements
+        run: python -m pip install -r requirements.txt
+      - name: Clone Proto Repo
+        run: git clone https://github.com/KodyPay/kp-protocols-clientsdk.git
+      - name: Move Proto Folder
+        run: |
+          cp -R kp-protocols-clientsdk/src/main/proto proto
+          rm -rf kp-protocols-clientsdk
+      - name: Generate GRPC Sources
+        run: |
+          mkdir generated
+          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --pyi_out=./generated --grpc_python_out=./generated
+          rm -rf proto
+      - name: Add init files
+        run: |
+          find "generated/com/kodypay/grpc/" -type d -not -name '__pycache__' -exec touch {}/__init__.py \;
+          echo "__version__ = '0.0.1'" > generated/com/kodypay/grpc/__init__.py
+      - name: Amend Imports
+        run: |
+          cp -R generated/com/kodypay/grpc/* src/kody_clientsdk_python
+          rm -rf generated
+          find ./src/kody_clientsdk_python -type f -name "*.py" -exec sed -i '' -e '/^import / s/com\.kodypay\.grpc/kody_clientsdk_python/g' -e '/^from / s/com\.kodypay\.grpc/kody_clientsdk_python/g' {} \;
+      - name: Update version
+        run: |
+          echo "__version__ = '${{ needs.tagging.outputs.version }}'" > src/kody_clientsdk_python/__init__.py
+      - name: Build
+        run: python -m build
+      - name: Upload dist directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist/
+
+  release:
+    needs:
+      - tagging
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          name: "${{ needs.tagging.outputs.tag }}"
+          tag: "${{ needs.tagging.outputs.tag }}"
+          omitBody: true
+          draft: false
+          artifacts: "*.tar.gz"
+          prerelease: ${{ needs.tagging.outputs.prerelease }}
+          makeLatest: ${{ !needs.tagging.outputs.prerelease }}
