@@ -60,12 +60,12 @@ jobs:
           echo "__version__ = '0.0.1'" > generated/com/kodypay/grpc/__init__.py
       - name: Amend Imports
         run: |
-          cp -R generated/com/kodypay/grpc/* src/kody_clientsdk_python
+          cp -R generated/com/kodypay/grpc/* kody_clientsdk_python
           rm -rf generated
-          find ./src/kody_clientsdk_python -type f -name "*.py" -exec sed -i '' -e '/^import / s/com\.kodypay\.grpc/kody_clientsdk_python/g' -e '/^from / s/com\.kodypay\.grpc/kody_clientsdk_python/g' {} \;
+          find ./kody_clientsdk_python -type f -name "*.py" -exec sed -i '' -e '/^import / s/com\.kodypay\.grpc/kody_clientsdk_python/g' -e '/^from / s/com\.kodypay\.grpc/kody_clientsdk_python/g' {} \;
       - name: Update version
         run: |
-          echo "__version__ = '${{ needs.tagging.outputs.version }}'" > src/kody_clientsdk_python/__init__.py
+          echo "__version__ = '${{ needs.tagging.outputs.version }}'" > kody_clientsdk_python/__init__.py
       - name: Build
         run: python ./setup.py dist
       - name: Upload dist directory as artifact
