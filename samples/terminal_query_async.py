@@ -18,11 +18,13 @@ async def get_terminals_async():
             metadata=[("x-api-key", config.api_key)]
         )
 
+        logging.info(f"getTerminalsAsync: response={response}")
+
         for i, terminal in enumerate(response.terminals):
             logging.info(f"Terminal {i}: id=[{terminal.terminal_id}], online=[{terminal.online}]")
 
 
-async def send_payment_async() -> None:
+async def send_terminal_payment_async() -> None:
     #Big Decimal
     amount = "3.14"
 
@@ -34,7 +36,7 @@ async def send_payment_async() -> None:
         )
 
         async for response in response_iterator:
-            logging.info(f"sendPaymentAsync: response={response}")
+            logging.info(f"sendTerminalPaymentAsync: response={response}")
 
 
 if __name__ == "__main__":
@@ -43,5 +45,5 @@ if __name__ == "__main__":
     # Async code
     loop = asyncio.get_event_loop()
     loop.run_until_complete(get_terminals_async())
-    loop.run_until_complete(send_payment_async())
+    loop.run_until_complete(send_terminal_payment_async())
     loop.close()

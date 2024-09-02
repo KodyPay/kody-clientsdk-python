@@ -17,8 +17,10 @@ def get_terminals_blocking():
             metadata=[("x-api-key", config.api_key)]
         )
 
-    for i, terminal in enumerate(response.terminals):
-        logging.info(f"Terminal {i}: id=[{terminal.terminal_id}], online=[{terminal.online}]")
+        logging.info(f"getTerminalsBlocking: response={response}")
+
+        for i, terminal in enumerate(response.terminals):
+            logging.info(f"Terminal {i}: id=[{terminal.terminal_id}], online=[{terminal.online}]")
 
 
 def send_terminal_payment_blocking() -> None:

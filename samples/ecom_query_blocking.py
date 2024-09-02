@@ -31,7 +31,7 @@ def send_online_payment_blocking():
                                                                             return_url=return_url),
                                         metadata=[("x-api-key", config.api_key)])
 
-    logging.info(f"sendOnlinePayment: response={response}")
+    logging.info(f"sendOnlinePaymentBlocking: response={response}")
 
 
 def get_payment_details():
@@ -42,7 +42,7 @@ def get_payment_details():
             ecom_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=1)),
             metadata=[("x-api-key", config.api_key)])
 
-    logging.info(f"sendPayment: response={response}")
+    logging.info(f"getPaymentDetailsBlocking: response={response}")
 
 
 if __name__ == "__main__":
