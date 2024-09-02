@@ -7,31 +7,23 @@ The Kody gRPC Client is an SDK generated from protobuf protocols to facilitate c
 Add to your `requirements.txt` any package from the release list
 `https://github.com/KodyPay/kody-clientsdk-python-3.6/releases/download/v<version>/kody_clientsdk_python-<version>.tar.gz`
 
-## Sample usage
-```python
-import logging
+### Configuration
 
-import grpc
-import kody_clientsdk_python.pay.v1.pay_pb2 as pay_model
-import kody_clientsdk_python.pay.v1.pay_pb2_grpc as pay_grpc_client
+Update the `config.ini` file with your `apiKey`, `storeId` and `terminalId`.
 
-host = "grpc.kodypay.com:443"
-storeId = "<YOUR_STORE_ID>"
-key = "<YOUR_KEY>"
+```ini
+[default]
+address=grpc-staging.kodypay.com:443
+apiKey=Put your API key here
+storeId=Use your Kody store ID
+terminalId=Use your terminal ID
+```
 
-def run():
-    with grpc.secure_channel(target=host,
-                             credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response = stub.Terminals(
-            pay_model.TerminalsRequest(store_id=storeId),
-            metadata=[("x-api-key", key)]
-        )
-
-    logging.info(f"Response received: {response.terminals}")
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    run()
-``` 
+## Running the Examples
+Below are the available examples you can find in the `samples` subproject:
+- Online payments
+    - `ecom_query_blocking.py`
+    - `ecom_query_async.py`
+- Terminal payments
+    - `terminal_query_blocking.py`
+    - `terminal_query_async.py`
