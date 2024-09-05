@@ -18,3 +18,15 @@ Below are the available examples you can find in the `samples` subproject:
 - Terminal payments
     - `terminal_query_blocking.py`
     - `terminal_query_async.py`
+
+```bash
+python3 samples/terminal/terminal_query_blocking.py
+```
+
+## Troubleshooting
+
+If you encounter issues, ensure:
+
+- PYTHONPATH is correctly exported (e.g. `export PYTHONPATH="${PYTHONPATH}:/kody-clientsdk-puthon-3.6"`)
+- Your `config.ini` is correctly filled out.
+- Contact Kody support or tech team

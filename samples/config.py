@@ -13,7 +13,7 @@ class Config:
 
 def load_config():
     config_parser = configparser.SafeConfigParser()
-    config_parser.read('config.ini')
+    config_parser.read('samples/config.ini')
 
     config = Config(address=config_parser.get("default", "address"),
                     store_id=config_parser.get("default", "storeId"),
