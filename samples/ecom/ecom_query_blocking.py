@@ -19,6 +19,10 @@ def send_online_payment_blocking():
     currency = "GBP"
     order_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     return_url = "returnUrl"
+    expiry = ecom_model.PaymentInitiationRequest.ExpirySettings(
+        show_timer=True,
+        expiring_seconds=1900
+    )
 
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
@@ -28,7 +32,8 @@ def send_online_payment_blocking():
                                                                             amount=amount,
                                                                             currency=currency,
                                                                             order_id=order_id,
-                                                                            return_url=return_url),
+                                                                            return_url=return_url,
+                                                                            expiry=expiry),
                                         metadata=[("x-api-key", config.api_key)])
 
     logging.info(f"sendOnlinePaymentBlocking: response={response}")
