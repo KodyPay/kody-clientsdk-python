@@ -1,4 +1,4 @@
-import configparser
+import os
 
 class Config:
     def __init__(self, address, store_id, api_key, terminal_id):
@@ -12,11 +12,9 @@ class Config:
         return f'Config: address: {self.address}, store_id = {self.store_id,} api_key = {self.api_key}, terminal_id = {self.terminal_id}'
 
 def load_config():
-    config_parser = configparser.SafeConfigParser()
-    config_parser.read('samples/config.ini')
 
-    config = Config(address=config_parser.get("default", "address"),
-                    store_id=config_parser.get("default", "storeId"),
-                    api_key=config_parser.get("default", "apiKey"),
-                    terminal_id=config_parser.get("default", "terminalId"))
+    config = Config(address=os.getenv('KODY_ADDRESS'),
+                    store_id=os.getenv('KODY_STORE_ID'),
+                    api_key=os.getenv('KODY_API_KEY'),
+                    terminal_id=os.getenv('KODY_TERMINAL_ID'))
     return config
