@@ -19,7 +19,7 @@ pip install kody-clientsdk-python
 
 ## Samples
 
-Go to the [samples](https://github.com/KodyPay/kody-clientsdk-python-3.6/tree/main/samples) directory for examples on how to use the Kody Python Client.
+Go to the [samples](https://github.com/KodyPay/kody-clientsdk-python/tree/main/versions/3_12/samples) directory for examples on how to use the Kody Python Client.
 
 ## License
 
