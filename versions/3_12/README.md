@@ -1,8 +1,8 @@
 # Kody Python Client
 
 ## Description
-The Kody Python Client is it's your direct line of communication with the Kody Payments Gateway. It simplifies the integration of Kody payment functionalities into your applications.
-The SDK is generated from protobuf protocols to facilitate communication with the Kody Payments Gateway.
+The Kody Python Client allows direct communication with the Kody Payments Gateway. It simplifies the integration of Kody payments into your application.
+The SDK is generated from Protobuf gRPC protocols to facilitate communication with the Kody Payments Gateway.
 
 ## Requirements
 - grpcio-tools
