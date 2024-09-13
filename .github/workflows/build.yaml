@@ -28,7 +28,7 @@ jobs:
           echo "version=${VERSION}">> $GITHUB_ENV
           if [[ "${TAG}" == *-* ]]; then echo "prerelease=true" >> $GITHUB_ENV; else echo "prerelease=false" >> $GITHUB_ENV; fi
 
-  build:
+  build-python-3_6:
     needs:
       - tagging
     runs-on: ubuntu-20.04
@@ -42,43 +42,107 @@ jobs:
       - name: Upgrade python tools
         run: python -m pip install --upgrade pip build setuptools wheel
       - name: Install Requirements
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r versions/3_6/requirements.txt
       - name: Clone Proto Repo
         run: git clone https://github.com/KodyPay/kp-protocols-clientsdk.git
       - name: Move Proto Folder
         run: |
-          cp -R kp-protocols-clientsdk/src/main/proto proto
+          cp -R kp-protocols-clientsdk/src/main/proto versions/3_6/proto
           rm -rf kp-protocols-clientsdk
       - name: Generate GRPC Sources
         run: |
+          cd versions/3_6
           mkdir generated
           find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --grpc_python_out=./generated
           rm -rf proto
       - name: Add init files
         run: |
+          cd versions/3_6
           find "generated/com/kodypay/grpc/" -type d -not -name '__pycache__' -exec touch {}/__init__.py \;
           echo "__version__ = '0.0.1'" > generated/com/kodypay/grpc/__init__.py
       - name: Amend Imports
         run: |
+          cd versions/3_6
           mkdir kody_clientsdk_python
           cp -R generated/com/kodypay/grpc/* kody_clientsdk_python
           rm -rf generated
           find ./kody_clientsdk_python -type f -name "*.py" -exec sed -i -e '/^import / s/com\.kodypay\.grpc/kody_clientsdk_python/g' -e '/^from / s/com\.kodypay\.grpc/kody_clientsdk_python/g' {} \;
       - name: Update version
         run: |
+          cd versions/3_6
           echo "__version__ = '${{ needs.tagging.outputs.version }}'" > kody_clientsdk_python/__init__.py
       - name: Build
-        run: python ./setup.py sdist
+        run: |
+          cd versions/3_6
+          python ./setup.py sdist
       - name: Upload dist directory as artifact
         uses: actions/upload-artifact@v4
         with:
           name: dist-artifacts
-          path: dist/
+          path: versions/3_6/dist/
+
+  build-publish-python-3_12:
+    needs:
+      - tagging
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.6'
+      - name: Upgrade python tools
+        run: python -m pip install --upgrade pip build setuptools wheel
+      - name: Install twinte for publishing
+        run: python -m pip install twine
+      - name: Install Requirements
+        run: python -m pip install -r versions/3_12/requirements.txt
+      - name: Clone Proto Repo
+        run: git clone https://github.com/KodyPay/kp-protocols-clientsdk.git
+      - name: Move Proto Folder
+        run: |
+          cp -R kp-protocols-clientsdk/src/main/proto versions/3_12/proto
+          rm -rf kp-protocols-clientsdk
+      - name: Generate GRPC Sources
+        run: |
+          cd versions/3_12
+          mkdir generated
+          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --grpc_python_out=./generated
+          rm -rf proto
+      - name: Add init files
+        run: |
+          cd versions/3_12
+          find "generated/com/kodypay/grpc/" -type d -not -name '__pycache__' -exec touch {}/__init__.py \;
+          echo "__version__ = '0.0.1'" > generated/com/kodypay/grpc/__init__.py
+      - name: Amend Imports
+        run: |
+          cd versions/3_12
+          mkdir kody_clientsdk_python
+          cp -R generated/com/kodypay/grpc/* kody_clientsdk_python
+          rm -rf generated
+          find ./kody_clientsdk_python -type f -name "*.py" -exec sed -i -e '/^import / s/com\.kodypay\.grpc/kody_clientsdk_python/g' -e '/^from / s/com\.kodypay\.grpc/kody_clientsdk_python/g' {} \;
+      - name: Update version
+        run: |
+          cd versions/3_12
+          echo "__version__ = '${{ needs.tagging.outputs.version }}'" > kody_clientsdk_python/__init__.py
+      - name: Build
+        run: |
+          cd versions/3_12
+          python ./setup.py sdist bdist_wheel
+      - name: Upload dist to PYPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          cd versions/3_12
+          twine upload dist/*
 
   release:
     needs:
       - tagging
-      - build
+      - build-python-3_6
+      - build-publish-python-3_12
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve Artifact

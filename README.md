@@ -1,29 +1,28 @@
-# Kody Python gRPC client
+# Kody Python Client
 
 ## Description
-The Kody Python gRPC Client is an SDK generated from protobuf protocols to facilitate communication with the Kody Payments Gateway. This library provides a simple and efficient way to integrate Kody payment functionalities into your applications.
 
-## Requirements
-- python 3.6
-- pyenv (optional for the samples)
+The Kody Python Client allows direct communication with the Kody Payments Gateway. It simplifies the integration of Kody payments into your application.
+The SDK is generated from Protobuf gRPC protocols to facilitate communication with the Kody Payments Gateway.
 
-### Environment
-
-You can use your native python environment (Python 3.6) or 
-use [pyenv](https://github.com/pyenv/pyenv) to create a virtual environment for python 3.6
+## Supported Python Versions
+- Python 3.6
+- Python 3.12
 
 ## Installation
 
-You can install from the package that already includes all the required dependencies:
+The installation is for the latest version of the Kody Python Client SDK.
 
-[Available releases](https://github.com/KodyPay/kody-clientsdk-python-3.6/releases)
 ```bash 
-pip install https://github.com/KodyPay/kody-clientsdk-python-3.6/releases/download/v<version>/kody_clientsdk_python-<version>.tar.gz
+pip install kody-clientsdk-python
 ```
+
 
 ## Samples
 
-Go to the [samples](https://github.com/KodyPay/kody-clientsdk-python-3.6/tree/main/samples) directory for examples on how to use the Kody Python gRPC Client.
+For the latest version of the Kody Python Client SDK, you can find the samples in the [samples](https://github.com/KodyPay/kody-clientsdk-python/tree/main/versions/3_12/samples) directory.
+
+For any other version check the [versions](https://github.com/KodyPay/kody-clientsdk-python/tree/main/versions) folder and select the version you are using to find the available samples.
 
 ## Troubleshooting
 
