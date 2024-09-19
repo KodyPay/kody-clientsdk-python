@@ -25,13 +25,15 @@ async def get_terminals_async():
 
 
 async def send_terminal_payment_async() -> None:
+    show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
+
     #Big Decimal
     amount = "3.14"
 
     async with grpc.aio.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
         stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
         response_iterator = stub.Pay(
-            pay_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount, show_tips=bool(config.show_tips)),
+            pay_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount, show_tips=show_tips),
             metadata=[("x-api-key", config.api_key)]
         )
 
