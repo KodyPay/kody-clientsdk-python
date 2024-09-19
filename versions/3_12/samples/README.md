@@ -11,6 +11,7 @@ export KODY_API_KEY=<Put your API key here>
 export KODY_STORE_ID=<Use your Kody store ID>
 export KODY_TERMINAL_ID=<Use your terminal ID>
 export KODY_ADDRESS=grpc-staging.kodypay.com:443
+export SHOW_TIPS=<Use True or False>
 ```
 
 Make sure you add into yor pythonpath the path to the samples directory:
