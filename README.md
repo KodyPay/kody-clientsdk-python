@@ -96,7 +96,7 @@ message PayResponse {
 - PHP: https://github.com/KodyPay/kody-clientsdk-php/tree/main/samples/php8/pos
 - .Net: https://github.com/KodyPay/kody-clientsdk-dotnet/tree/main/samples/ListTerminals,https://github.com/KodyPay/kody-clientsdk-dotnet/tree/main/samples/TerminalPayment 
 
-5. **Create a client:** Use the code given is samples to create a client to make the payment request.
+5. **Create a client:** Use the code given in samples to create a client to make the payment request.
 
 ## Online Payment
 Online payment is used for ecommerce transaction.
@@ -181,7 +181,7 @@ The response of the service call will generate a payment url which then can be u
 - PHP: https://github.com/KodyPay/kody-clientsdk-php/tree/main/samples/php8/ecom-server
 - .Net: https://github.com/KodyPay/kody-clientsdk-dotnet/tree/main/samples/ListTerminals,https://github.com/KodyPay/kody-clientsdk-dotnet/tree/main/samples/TerminalPayment 
 
-5. **Create a client:** Use the code given is samples to create a client to make the payment request.
+5. **Create a client:** Use the code given in samples to create a client to make the payment request.
 
 ## Get Terminal Payment Details
 
@@ -231,7 +231,7 @@ enum PaymentStatus {
   CANCELLED = 3;
 }
 ```
-3. **Create a client:** Use the code given is samples to create a client to make the get payment details request.
+3. **Create a client:** Use the code given in samples to create a client to make the get payment details request.
 
 ## Cancel Terminal Payment Details
 
@@ -274,7 +274,7 @@ enum PaymentStatus {
   CANCELLED = 3;
 }
 ```
-3. **Create a client:** Use the code given is samples to create a client to make the cancel request.
+3. **Create a client:** Use the code given in samples to create a client to make the cancel request.
 
 
 
