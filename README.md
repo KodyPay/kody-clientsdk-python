@@ -23,8 +23,8 @@ If your coding language is not listed, please let the Kody team know and we will
 
 ## Authenticate to Payments API
 
-The client library uses a combination of a `Store ID` and an `API key`. These will be shared with you during the technical integration onbiarding or by your Kody contact.
-During develoment you will have access to a test Store and test API key, and when the integration is ready for live access, those production credentials will be shared securely.
+The client library uses a combination of a `Store ID` and an `API key`. These will be shared with you during the technical integration onboarding or by your Kody contact.
+During development, you will have access to a test Store and test API key, and when the integration is ready for live access, those production credentials will be shared securely.
 Test and live API calls are always compatible, only changing credentials and the service hostname is required.
 
 ### Host names
@@ -52,6 +52,14 @@ The Kody Payments API Terminal service has the following methods:
 - `KodyPayTerminalService.Cancel` - cancel an active terminal payment
 - `KodyPayTerminalService.PaymentDetails` - get the payment details
 
+The Kody Payments API Online service has the following methods:
+
+- `KodyPayTerminalService.InitiatePayment` - initiate an online payment
+- `KodyPayTerminalService.PaymentDetails` - get the payment details
+- `KodyPayTerminalService.GetPayments` - get list of payments
+- `KodyPayTerminalService.GetCardToken` - get card token
+
+
 ### Online
 
 The Kody Payments API Online service has the following methods:
@@ -68,6 +76,10 @@ The Kody Payments API Online service has the following methods:
 
 This simple call is a fast, read only method, that returns a list of all terminals assigned to the store, and their online status.
 
+The terminals request requires the following parameters:
+- `store_id` - the ID of your assigned store
+
+The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 ````python
  with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
@@ -80,20 +92,31 @@ This simple call is a fast, read only method, that returns a list of all termina
 - TerminalResponse : Terminal Response
 
 ```python
-message TerminalsResponse {
-  repeated Terminal terminals = 1;
-}
+from dataclasses import dataclass
+from typing import List
 
-message Terminal {
-  string terminal_id = 1; // terminal serial number
-  bool online = 2;
-}
+@dataclass
+class Terminal:
+    terminal_id: str  # Terminal serial number
+    online: bool  # Online status
+
+@dataclass
+class TerminalsResponse:
+    terminals: List[Terminal]  # List of Terminal objects
 ```
 
 ### **Create terminal payment**
 
-Send to a terminal a payment initiation request. This request can make the terminal to immediately display a card acquiring screen, or display a tip screen to the user which after will go to the card scanning screen.
+Send a payment initiation request to a terminal. This request will either make the terminal immediately display the card acquiring screen, or display a tip screen to the user after which it will go to the card acquiring screen.
 
+The pay request requires the following parameters:
+- `store_id` - the ID of your assigned store
+- `terminal_id` - the serial number of the terminal that will process the payment request
+- `amount` - amount as a 2.dp decimal number, such as 1.00
+  The following parameters are optional:
+- `show_tips` - whether to show (true) or hide (false) the tip options, default is to hide the tip options (false)
+
+The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 ````python
 # without tips screen
 with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
@@ -115,22 +138,38 @@ with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_cre
 - PayResponse : Payment Response
 
 ````python
-message PayResponse {
-  PaymentStatus status = 1;
-  optional string failure_reason = 2; // only populated on failure
-  optional string receipt_json = 3; // json blob containing the receipt data
-  string order_id = 4;
-  google.protobuf.Timestamp date_created = 5;
-  optional string ext_payment_ref = 6;
-  google.protobuf.Timestamp date_paid = 7;
-  optional string total_amount = 8;
-  optional string sale_amount = 9;
-  optional string tips_amount = 10;
-}
+from dataclasses import dataclass
+from typing import Optional
+from enum import Enum
+from datetime import datetime
+
+class PaymentStatus(Enum):
+    PENDING = 1
+    SUCCESS = 2
+    FAILED = 3
+    CANCELLED = 4
+
+@dataclass
+class PayResponse:
+    status: PaymentStatus  # Payment status (enum)
+    failure_reason: Optional[str] = None  # Optional, only populated on failure
+    receipt_json: Optional[str] = None  # Optional, json blob for receipt data
+    order_id: str  # Mandatory field for order ID
+    date_created: datetime  # Timestamp when the response was created
+    ext_payment_ref: Optional[str] = None  # Optional external payment reference
+    date_paid: Optional[datetime] = None  # Optional timestamp for date paid
+    total_amount: Optional[str] = None  # Optional total amount
+    sale_amount: Optional[str] = None  # Optional sale amount
+    tips_amount: Optional[str] = None  # Optional tips amount
 ````
 
 ### **Get Terminal Payment Details**
 
+The payment details request requires the following parameters:
+- `store_id` - the ID of your assigned store
+- `order_id` - the Order ID returned in the initial payment response, a unique UUID value for each payment.
+
+The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 ````python
 with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
         stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
@@ -143,6 +182,15 @@ with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_cre
 
 ### **Cancel Terminal Payment**
 
+The cancel payment request requires the following parameters:
+
+- `store_id` - the ID of your assigned store
+- `terminal_id` - the serial number of the terminal that is processing the payment request
+- `amount` - the amount sent in the original payment request, used to find the payment request
+- `order_id` - the Order ID returned in the initial payment response, a unique UUID value for each payment
+
+The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
+
 ````python
 with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
         stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
@@ -154,12 +202,33 @@ with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_cre
 - CancelResponse : Cancel Payment Response
 
 ````python
-message CancelResponse {
-  PaymentStatus status = 1;
-}
+from dataclasses import dataclass
+from enum import Enum
+
+class PaymentStatus(Enum):
+   PENDING = 1
+   SUCCESS = 2
+   FAILED = 3
+   CANCELLED = 4
+
+@dataclass
+class CancelResponse:
+    status: PaymentStatus  # PaymentStatus enum for the cancel operation status
 ````
 
 ### **Create online payment**
+
+The online payment request requires the following parameters:
+
+- `store_id` - the ID of your assigned store
+- `payment_reference` - a unique reference for the payment, sent from the client and returned by the server
+- `amount` - the amount to request for the online payment, formatted as a 2.dp decimal number, such as `1.00`
+- `currency` - the currency for this payment in 3 character ISO format, such as `GBP`
+- `order_id` - a unique order ID for this payment, sent from the client and returned by the server
+- `return_url` - where the payment form will redirect to after the payment has completed, the return url will have additional query parameters appended to indicate the status of the payment request.
+- `expiry` - how long the payment form will wait until the payment expires and the page will redirect to the return url
+
+The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 
 ````python
  with grpc.secure_channel(target=config.address,
@@ -176,29 +245,37 @@ message CancelResponse {
 ````
 - PaymentInitiationResponse - Online Payment Response
 ````python
-message PaymentInitiationResponse {
-  oneof result {
-    Response response = 1;
-    Error error = 2;
-  }
+from dataclasses import dataclass
+from typing import Optional
 
-  message Response {
-    string payment_id = 1; // The unique identifier created by Kody
-    string payment_url = 2; // The URL to send the user to from your application
-  }
-
-  message Error {
-    Type type = 1;
-    string message = 2;
-
-    enum Type {
-      UNKNOWN = 0;
-      DUPLICATE_ATTEMPT = 1;
-      INVALID_REQUEST = 2;
-    }
-  }
-}
+@dataclass
+class PaymentInitiationResponse:
+    response: Optional[str] = None
+    error: Optional[str] = None
 ````
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Response:
+    payment_id: str  # The unique identifier created by Kody
+    payment_url: str  # The URL to send the user to from your application
+
+```
+```python
+from dataclasses import dataclass
+from enum import Enum
+
+class ErrorType(Enum):
+    UNKNOWN = 0
+    DUPLICATE_ATTEMPT = 1
+    INVALID_REQUEST = 2
+
+@dataclass
+class Error:
+    type: ErrorType  # Enum for the error type
+    message: str  # Error message
+```
 ## More sample code
 
 - Java : https://github.com/KodyPay/kody-clientsdk-java/tree/main/samples/src/main/java/terminal
