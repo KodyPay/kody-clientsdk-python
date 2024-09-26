@@ -226,7 +226,7 @@ The request authenticates with the server using the `x-api-key` metadata field, 
 
 ````python
 response = kody_client.Cancel(
-    pay_model.CancelRequest(store_id="STORE ID",
+    kody_model.CancelRequest(store_id="STORE ID",
                             terminal_id="TERMINAL ID",
                             amount="65.50", 
                             order_id="ORDER ID"),
@@ -262,13 +262,13 @@ The online payment request requires the following parameters:
 
 ````python
 response = kody_client.InitiatePayment(
-    kody_ecom_model.PaymentInitiationRequest(store_id="STORE ID",
-                                             payment_reference=payment_reference,
-                                             amount=amount,
-                                             currency=currency,
-                                             order_id=order_id,
-                                             return_url=return_url,
-                                             expiry=expiry),
+    kody_model.PaymentInitiationRequest(store_id="STORE ID",
+                                        payment_reference=payment_reference,
+                                        amount=amount,
+                                        currency=currency,
+                                        order_id=order_id,
+                                        return_url=return_url,
+                                        expiry=expiry),
     metadata=metadata)
 ````
 
