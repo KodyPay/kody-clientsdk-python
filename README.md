@@ -52,22 +52,14 @@ The Kody Payments API Terminal service has the following methods:
 - `KodyPayTerminalService.Cancel` - cancel an active terminal payment
 - `KodyPayTerminalService.PaymentDetails` - get the payment details
 
+### Online
+
 The Kody Payments API Online service has the following methods:
 
 - `KodyPayTerminalService.InitiatePayment` - initiate an online payment
 - `KodyPayTerminalService.PaymentDetails` - get the payment details
 - `KodyPayTerminalService.GetPayments` - get list of payments
 - `KodyPayTerminalService.GetCardToken` - get card token
-
-
-### Online
-
-The Kody Payments API Online service has the following methods:
-
-- `KodyPayTerminalService.Terminals` - returns all the terminals of the store and their online status
-- `KodyPayTerminalService.Pay` - initiate a terminal payment
-- `KodyPayTerminalService.Cancel` - cancel an active terminal payment
-- `KodyPayTerminalService.PaymentDetails` - get the payment details
 
 
 ## Demo code
