@@ -14,79 +14,97 @@ Available languages:
 
 The advantages of using the Kody Client library instead of a REST API are:
 - Maintained by Kody.
-- Built-in authentication.
+- Built-in authentication and increased security.
 - Built-in retries.
 - Idiomatic for each language.
 - Efficient protocol buffer HTTP request body.
+- Quicker development.
+- Backwards compatibility with new versions.
 
 If your coding language is not listed, please let the Kody team know and we will be able to create it for you.
 
 ## Authenticate to Payments API
 
-The client library uses a combination of a `Store ID` and an `API key`. These will be shared with you during the technical integration onboarding or by your Kody contact.
-During development, you will have access to a test Store and test API key, and when the integration is ready for live access, those production credentials will be shared securely.
-Test and live API calls are always compatible, only changing credentials and the service hostname is required.
+The client library uses a combination of a `Store ID` and an `API key`. 
+These will be shared with you during the technical integration onboarding or by your Kody contact.
+
+During development, you will have access to a **test Store** and **test API key**, and when the integration is ready for live access, the production credentials will be shared securely with you and associated with a live store that was onboarded on Kody.
+
+The test and live API calls are always compatible, only changing credentials and the service hostname is required to enable the integration in production.
 
 ### Host names
 
 - Development and test: `https://grpc-staging.kodypay.com`
 - Live: `https://grpc.kodypay.com`
 
-## Payments API Documentation
+### API Authentication
+
+Every client library request authenticates with the server using a `store id` and metadata field `x-api-key`.
+
+Example: 
+````python
+# Create request and set metadata
+get_terminals_request = kody_model.TerminalsRequest(store_id="STORE ID")
+metadata = [("x-api-key", "API KEY")]
+
+# Setup gRPC channel and client stub
+channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyPayTerminalServiceStub(channel)
+
+# Make the client call with request and metadata
+get_terminals_response = kody_service.Terminals(get_terminals_request, metadata=metadata)
+````
+
+## Payments API Reference
 
 Kody supports the following channels to accept payments via API.
 
-1. Terminal - In-person payments
-2. Online - E-commerce payments
+1. [**Terminal**](#terminal---in-person-payments) - In-person payments
+2. [**Online**](#online---e-commerce-payments) - E-commerce payments
 
 Each of these channels have their own collection of services that are available as method calls on the client library:
 - `KodyPayTerminalService`
 - `KodyEcomPaymentsService`
 
-### Terminal
+### Terminal - In-person payments
 
 The Kody Payments API Terminal service has the following methods:
 
-- `KodyPayTerminalService.Terminals` - returns all the terminals of the store and their online status
-- `KodyPayTerminalService.Pay` - initiate a terminal payment
-- `KodyPayTerminalService.Cancel` - cancel an active terminal payment
-- `KodyPayTerminalService.PaymentDetails` - get the payment details
+- [Get List of Terminals](#Get-list-of-Terminals): `KodyPayTerminalService.Terminals` - returns all the terminals of the store and their online status
+- [Create Terminal Payment](#create-terminal-payment):`KodyPayTerminalService.Pay` - initiate a terminal payment
+- Cancel terminal payment: `KodyPayTerminalService.Cancel` - cancel an active terminal payment
+- [Get Payment Details](#get-terminal-payment-details) `KodyPayTerminalService.PaymentDetails` - get the payment details
 
-### Online
+Follow the links of these methods to see the sample code and the data specification.
+
+### Online - E-commerce payments
 
 The Kody Payments API Online service has the following methods:
 
-- `KodyPayTerminalService.InitiatePayment` - initiate an online payment
-- `KodyPayTerminalService.PaymentDetails` - get the payment details
-- `KodyPayTerminalService.GetPayments` - get list of payments
-- `KodyPayTerminalService.GetCardToken` - get card token
+- `KodyEcomPaymentsService.InitiatePayment` - returns a URL to display to the shopper an online payment page
+- `KodyEcomPaymentsService.PaymentDetails` - get the payment details
+- `KodyEcomPaymentsService.GetCardToken` - get card token
+- `KodyEcomPaymentsService.GetPayments` - get list of all store payments, with a filter and paginated
 
 
-## Demo code
+## API data reference and Demo code
 
-### **Get list of Terminals**
+Every request to the client library requires authentication and the identifier of the store. See more [authentication](#authenticate-to-payments-api).
 
-This simple call is a fast, read only method, that returns a list of all terminals assigned to the store, and their online status.
+### Get list of Terminals
 
-The terminals request requires the following parameters:
-- `store_id` - the ID of your assigned store
+This is a simple and read only method, that returns a list of all terminals assigned to the store, and their online status.
+You can use this request frequently and it is a good way to check if your API code is configured properly for authentication.
 
-The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
-````python
- with grpc.secure_channel(target=config.address,
-                             credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response = stub.Terminals(
-            pay_model.TerminalsRequest(store_id=config.store_id),
-            metadata=[("x-api-key", config.api_key)]
-        )
-````
-- TerminalResponse : Terminal Response
-
+- TerminalRequest : Terminal Request
 ```python
-from dataclasses import dataclass
-from typing import List
+@dataclass
+class TerminalRequest:
+    store_id: str  # The store id
+```
 
+- TerminalResponse : Terminal Response
+```python
 @dataclass
 class Terminal:
     terminal_id: str  # Terminal serial number
@@ -97,44 +115,51 @@ class TerminalsResponse:
     terminals: List[Terminal]  # List of Terminal objects
 ```
 
-### **Create terminal payment**
-
-Send a payment initiation request to a terminal. This request will either make the terminal immediately display the card acquiring screen, or display a tip screen to the user after which it will go to the card acquiring screen.
-
-The pay request requires the following parameters:
-- `store_id` - the ID of your assigned store
-- `terminal_id` - the serial number of the terminal that will process the payment request
-- `amount` - amount as a 2.dp decimal number, such as 1.00
-  The following parameters are optional:
-- `show_tips` - whether to show (true) or hide (false) the tip options, default is to hide the tip options (false)
-
-The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
+#### Python Demo
 ````python
-# without tips screen
-with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response_iterator = stub.Pay(
-            pay_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount),
-            metadata=[("x-api-key", config.api_key)]
-        )
+import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
+import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
 
-# with tips screen
-with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response_iterator = stub.Pay(
-            pay_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount,  show_tips=bool(True)),
-            metadata=[("x-api-key", config.api_key)]
-        )
+channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyPayTerminalServiceStub(channel)
+metadata = [("x-api-key", "API KEY")]
+
+# Make the client call with request and metadata
+get_terminals_request = kody_model.TerminalsRequest(store_id="STORE ID")
+get_terminals_response = kody_service.Terminals(get_terminals_request, metadata=metadata)
 ````
 
-- PayResponse : Payment Response
+### Create terminal payment
+
+Send a payment initiation request to a terminal. 
+This request will either make the terminal immediately display the card acquiring screen, or display a tip screen to the user after which it will go to the card acquiring screen.
+
+A test terminal might have multiple apps on the OS screen. Launch the terminal app called `[S] Payments`.
+
+The terminal must be in the mode: `Wait for Orders` which can be launched from the terminal app menu.
+A store that has the feature `Wait for Orders` enable will always launch the `Wait for Orders` screen automatically. 
+This screen can be closed to access other terminal features, but payments from API will not work until the `Wait for Orders` screen is started. 
+
+#### PayRequest - Payment Request 
+```python
+@dataclass
+class PayRequest:
+    store_id: str
+    terminal_id: str
+    amount: float
+    show_tips: bool
+```
+
+Request parameters:
+- `store_id` - the ID of your assigned store
+- `terminal_id` - the serial number of the terminal that will process the payment request. This number is returned by the [list of terminals request](#get-list-of-terminals), or can be found on the back label of the hardware.
+- `amount` - amount as a 2.dp decimal number, such as `"1.00"`
+- `show_tips` - (optional) whether to show (true) or hide (false) the tip options. Default is (false)
+
+
+#### PayResponse : Payment Response
 
 ````python
-from dataclasses import dataclass
-from typing import Optional
-from enum import Enum
-from datetime import datetime
-
 class PaymentStatus(Enum):
     PENDING = 1
     SUCCESS = 2
@@ -143,10 +168,10 @@ class PaymentStatus(Enum):
 
 @dataclass
 class PayResponse:
-    status: PaymentStatus  # Payment status (enum)
+    status: PaymentStatus
+    order_id: str  # Unique order ID generated by Kody
     failure_reason: Optional[str] = None  # Optional, only populated on failure
     receipt_json: Optional[str] = None  # Optional, json blob for receipt data
-    order_id: str  # Mandatory field for order ID
     date_created: datetime  # Timestamp when the response was created
     ext_payment_ref: Optional[str] = None  # Optional external payment reference
     date_paid: Optional[datetime] = None  # Optional timestamp for date paid
@@ -155,25 +180,41 @@ class PayResponse:
     tips_amount: Optional[str] = None  # Optional tips amount
 ````
 
-### **Get Terminal Payment Details**
+#### Python Demo 
+````python
+import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
+import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
+
+channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyPayTerminalServiceStub(channel)
+metadata = [("x-api-key", "API KEY")]
+
+# Make the client call with request and metadata
+payment_request = kody_model.PayRequest(store_id="STORE ID", 
+                                        terminal_id="TERMINAL ID", 
+                                        amount="65.50",
+                                        show_tips=bool(False))
+payment_response = kody_service.Pay(payment_request, metadata=metadata])
+````
+
+### Get Terminal Payment Details
 
 The payment details request requires the following parameters:
 - `store_id` - the ID of your assigned store
 - `order_id` - the Order ID returned in the initial payment response, a unique UUID value for each payment.
 
-The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 ````python
-with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response = stub.PaymentDetails(
-            pay_model.PaymentDetailsRequest(store_id=config.store_id, order_id=config.order_id),
-            metadata=[("x-api-key", config.api_key)]
-        )
+payment_details_response = kody_client.PaymentDetails(
+    kody_model.PaymentDetailsRequest(store_id="STORE ID", 
+                                     order_id="ORDER ID"),
+    metadata=metadata
+)
 ````
-- PayResponse : Get Payment Detail Response
+- PayResponse : [Get Payment Detail Response](#payresponse--payment-response)
 
-### **Cancel Terminal Payment**
+### Cancel Terminal Payment
 
+#### CancelRequest
 The cancel payment request requires the following parameters:
 
 - `store_id` - the ID of your assigned store
@@ -184,19 +225,18 @@ The cancel payment request requires the following parameters:
 The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 
 ````python
-with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = pay_grpc_client.KodyPayTerminalServiceStub(channel)
-        response = stub.Cancel(
-            pay_model.CancelRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount,  order_id=config.order_id),
-            metadata=[("x-api-key", config.api_key)]
-        )
+response = kody_client.Cancel(
+    kody_model.CancelRequest(store_id="STORE ID",
+                            terminal_id="TERMINAL ID",
+                            amount="65.50", 
+                            order_id="ORDER ID"),
+    metadata=metadata
+)
 ````
-- CancelResponse : Cancel Payment Response
+
+#### CancelResponse : Cancel Payment Response
 
 ````python
-from dataclasses import dataclass
-from enum import Enum
-
 class PaymentStatus(Enum):
    PENDING = 1
    SUCCESS = 2
@@ -205,13 +245,13 @@ class PaymentStatus(Enum):
 
 @dataclass
 class CancelResponse:
-    status: PaymentStatus  # PaymentStatus enum for the cancel operation status
+    status: PaymentStatus
 ````
 
-### **Create online payment**
-
+## Online Payments
+### Create online payment
+#### PaymentInitiationRequest - Online payment request
 The online payment request requires the following parameters:
-
 - `store_id` - the ID of your assigned store
 - `payment_reference` - a unique reference for the payment, sent from the client and returned by the server
 - `amount` - the amount to request for the online payment, formatted as a 2.dp decimal number, such as `1.00`
@@ -220,43 +260,29 @@ The online payment request requires the following parameters:
 - `return_url` - where the payment form will redirect to after the payment has completed, the return url will have additional query parameters appended to indicate the status of the payment request.
 - `expiry` - how long the payment form will wait until the payment expires and the page will redirect to the return url
 
-The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
-
 ````python
- with grpc.secure_channel(target=config.address,
-                             credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response = stub.InitiatePayment(ecom_model.PaymentInitiationRequest(store_id=config.store_id,
-                                                                            payment_reference=payment_reference,
-                                                                            amount=amount,
-                                                                            currency=currency,
-                                                                            order_id=order_id,
-                                                                            return_url=return_url,
-                                                                            expiry=expiry),
-                                        metadata=[("x-api-key", config.api_key)])
+response = kody_client.InitiatePayment(
+    kody_model.PaymentInitiationRequest(store_id="STORE ID",
+                                        payment_reference=payment_reference,
+                                        amount=amount,
+                                        currency=currency,
+                                        order_id=order_id,
+                                        return_url=return_url,
+                                        expiry=expiry),
+    metadata=metadata)
 ````
-- PaymentInitiationResponse - Online Payment Response
-````python
-from dataclasses import dataclass
-from typing import Optional
 
+#### PaymentInitiationResponse - Online payment response
+````python
 @dataclass
 class PaymentInitiationResponse:
-    response: Optional[str] = None
-    error: Optional[str] = None
-````
-```python
-from dataclasses import dataclass
+    response: Optional[Response] = None
+    error: Optional[Error] = None
 
 @dataclass
 class Response:
     payment_id: str  # The unique identifier created by Kody
     payment_url: str  # The URL to send the user to from your application
-
-```
-```python
-from dataclasses import dataclass
-from enum import Enum
 
 class ErrorType(Enum):
     UNKNOWN = 0
@@ -267,7 +293,8 @@ class ErrorType(Enum):
 class Error:
     type: ErrorType  # Enum for the error type
     message: str  # Error message
-```
+````
+
 ## More sample code
 
 - Java : https://github.com/KodyPay/kody-clientsdk-java/tree/main/samples/src/main/java/terminal
