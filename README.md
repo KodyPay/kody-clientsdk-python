@@ -156,7 +156,7 @@ class TerminalsResponse:
 import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
 import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
 
-channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
 kody_service = kody_client.KodyPayTerminalServiceStub(channel)
 metadata = [("x-api-key", "API KEY")]
 
@@ -221,7 +221,7 @@ class PayResponse:
 import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
 import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
 
-channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
 kody_service = kody_client.KodyPayTerminalServiceStub(channel)
 metadata = [("x-api-key", "API KEY")]
 
