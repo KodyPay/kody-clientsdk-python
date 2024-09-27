@@ -117,7 +117,7 @@ Follow the links of these methods to see the sample code and the data specificat
 
 The Kody Payments API Online service has the following methods:
 
-- `KodyEcomPaymentsService.InitiatePayment` - returns a URL to display to the shopper an online payment page
+- `KodyEcomPaymentsService.InitiatePayment` - returns a URL to display an online payment page to the shopper
 - `KodyEcomPaymentsService.PaymentDetails` - get the payment details
 - `KodyEcomPaymentsService.GetCardToken` - get card token
 - `KodyEcomPaymentsService.GetPayments` - get list of all store payments, with a filter and paginated
@@ -173,8 +173,8 @@ This request will either make the terminal immediately display the card acquirin
 A test terminal might have multiple apps on the OS screen. Launch the terminal app called `[S] Payments`.
 
 The terminal must be in the mode: `Wait for Orders` which can be launched from the terminal app menu.
-A store that has the feature `Wait for Orders` enable will always launch the `Wait for Orders` screen automatically. 
-This screen can be closed to access other terminal features, but payments from API will not work until the `Wait for Orders` screen is started. 
+A store that has the feature `Wait for Orders` enabled will always launch the `Wait for Orders` screen automatically. 
+This screen can be closed (by tapping the `X` icon) to access other terminal features, but payments from API will not work until the `Wait for Orders` screen is started. 
 
 #### PayRequest - Payment Request 
 ```python
@@ -258,7 +258,6 @@ The cancel payment request requires the following parameters:
 - `amount` - the amount sent in the original payment request, used to find the payment request
 - `order_id` - the Order ID returned in the initial payment response, a unique UUID value for each payment
 
-The request authenticates with the server using the `x-api-key` metadata field, you must use your assigned API key.
 
 ````python
 response = kody_client.Cancel(
@@ -317,7 +316,7 @@ class PaymentInitiationResponse:
 @dataclass
 class Response:
     payment_id: str  # The unique identifier created by Kody
-    payment_url: str  # The URL to send the user to from your application
+    payment_url: str  # The URL to send to the user from your application
 
 class ErrorType(Enum):
     UNKNOWN = 0
