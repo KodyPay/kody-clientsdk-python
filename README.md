@@ -2,6 +2,13 @@
 
 This guide provides an overview of using the Kody Payments API and its reference documentation.
 
+- [Client Libraries](#client-libraries)
+- [Python Installation](#python-installation)
+- [Authenticate to Payments API](#authenticate-to-payments-api)
+- [Payments API Reference](#payments-api-reference)
+- [API data reference and Demo code](#api-data-reference-and-demo-code)
+- [More sample code](#more-sample-code)
+
 ## Client Libraries
 
 Kody provides client libraries for many popular languages to access the APIs. If your desired programming language is supported by the client libraries, we recommend that you use this option.
@@ -22,6 +29,33 @@ The advantages of using the Kody Client library instead of a REST API are:
 - Backwards compatibility with new versions.
 
 If your coding language is not listed, please let the Kody team know and we will be able to create it for you.
+
+## Python Installation
+### Requirements
+Add to your `requirements.txt` the following:
+````
+grpcio-tools
+````
+And in your `setup.py` the following:
+````python
+    install_requires=[
+        'grpcio==1.66.1',
+        'protobuf==5.27.2'
+    ],
+````
+### PIP
+
+Install the Kody Python Client SDK using the following command:
+
+```bash 
+pip install kody-clientsdk-python
+```
+### Import in code
+You can import the Kody Client Library in your Python code with the following:
+````python
+import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
+import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
+````
 
 ## Authenticate to Payments API
 
@@ -48,12 +82,14 @@ get_terminals_request = kody_model.TerminalsRequest(store_id="STORE ID")
 metadata = [("x-api-key", "API KEY")]
 
 # Setup gRPC channel and client stub
-channel = grpc.secure_channel("https://grpc-staging.kodypay.com", grpc.ssl_channel_credentials())
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
 kody_service = kody_client.KodyPayTerminalServiceStub(channel)
 
 # Make the client call with request and metadata
 get_terminals_response = kody_service.Terminals(get_terminals_request, metadata=metadata)
 ````
+Replace the `STORE ID`, `API KEY` and `HOSTNAME` with the details provided by the Kody team.
+Note: it is recommended that you store the `API KEY` in a secured storage, and insert it into your code via an environment variable. Read more [How to Handle Secrets in Python](https://blog.gitguardian.com/how-to-handle-secrets-in-python/). 
 
 ## Payments API Reference
 
@@ -248,8 +284,7 @@ class CancelResponse:
     status: PaymentStatus
 ````
 
-## Online Payments
-### Create online payment
+### Online Payments
 #### PaymentInitiationRequest - Online payment request
 The online payment request requires the following parameters:
 - `store_id` - the ID of your assigned store
