@@ -22,14 +22,13 @@ export PYTHONPATH="${PYTHONPATH}:/path_to_samples"
 ## Running the Examples
 Below are the available examples you can find in the `samples` subproject:
 - Online payments
-    - `ecom_query_blocking.py`
-    - `ecom_query_async.py`
+    - `process_payment.py`
 - Terminal payments
-    - `terminal_query_blocking.py`
-    - `terminal_query_async.py`
+    - `list_terminals.py`
+    - `process_payment.py`
 
 ```bash
-python3 terminal/terminal_query_blocking.py
+python3 -m samples.terminal.list_terminals
 ```
 
 ## Troubleshooting

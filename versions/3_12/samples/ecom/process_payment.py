@@ -9,9 +9,10 @@ import kody_clientsdk_python.ecom.v1.ecom_pb2 as ecom_model
 import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as ecom_grpc_client
 from kody_clientsdk_python.sdk.common.pagination_pb2 import PageCursor
 
-from samples.config import load_config
+from ..config import load_config
 
 config = load_config()
+
 
 def send_online_payment_blocking():
     amount = 314
@@ -44,7 +45,7 @@ def get_payment_details():
                              credentials=grpc.ssl_channel_credentials()) as channel:
         stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
         response = stub.GetPayments(
-            ecom_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=1)),
+            ecom_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=5)),
             metadata=[("x-api-key", config.api_key)])
 
     logging.info(f"getPaymentDetailsBlocking: response={response}")
