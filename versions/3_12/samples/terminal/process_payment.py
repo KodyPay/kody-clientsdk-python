@@ -15,14 +15,14 @@ def send_terminal_payment() -> None:
     amount = "3.14"
 
     with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = kody_client.KodyPayTerminalServiceStub(channel)
-        response_iterator = stub.Pay(
+        client = kody_client.KodyPayTerminalServiceStub(channel)
+        response_iterator = client.Pay(
             kody_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount, show_tips=show_tips),
             metadata=[("x-api-key", config.api_key)]
         )
 
         for response in response_iterator:
-            logging.info(f"sendTerminalPaymentBlocking: response={response}")
+            logging.info(f"sendTerminalPayment: response={response}")
 
 
 if __name__ == "__main__":
