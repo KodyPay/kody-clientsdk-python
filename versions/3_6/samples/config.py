@@ -1,3 +1,6 @@
+import os
+
+
 class Config:
     def __init__(self, address, store_id, api_key, terminal_id):
         self.address = address
@@ -11,9 +14,12 @@ class Config:
 
 
 def load_config():
-    config = Config(address='grpc-staging.kodypay.com',
-                    # Set only the hostname and not the full url. Example: grpc.kodypay.com
-                    store_id='4ac9ea63-9918-43d4-8da0-1dde11be29ab',
-                    api_key='Du-SYvTdQEVST9ncVd6UHH7yD735h6iFi0IwoLscLlyD',
-                    terminal_id='S1F2-000158240540290')
+    # load the configuration from the ENV variables
+    # The address property must be only the hostname and not the full url.
+    # Wrong: address='https://grpc.kodypay.com'
+    # Correct: address='grpc.kodypay.com'
+    config = Config(address=os.getenv('KODY_ADDRESS'),
+                    store_id=os.getenv('KODY_STORE_ID'),
+                    api_key=os.getenv('KODY_API_KEY'),
+                    terminal_id=os.getenv('KODY_TERMINAL_ID'))
     return config
