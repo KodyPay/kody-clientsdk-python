@@ -5,13 +5,14 @@ import random
 from uuid import uuid4
 
 import grpc
-import kody_clientsdk_python.ecom.v1.ecom_pb2 as ecom_model
-import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as ecom_grpc_client
+import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
+import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
 from kody_clientsdk_python.sdk.common.pagination_pb2 import PageCursor
 
-from samples.config import load_config
+from ..config import load_config
 
 config = load_config()
+
 
 def send_online_payment_blocking():
     amount = 314
@@ -19,15 +20,15 @@ def send_online_payment_blocking():
     currency = "GBP"
     order_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     return_url = "returnUrl"
-    expiry = ecom_model.PaymentInitiationRequest.ExpirySettings(
+    expiry = kody_model.PaymentInitiationRequest.ExpirySettings(
         show_timer=True,
         expiring_seconds=1900
     )
 
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response = stub.InitiatePayment(ecom_model.PaymentInitiationRequest(store_id=config.store_id,
+        client = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = client.InitiatePayment(kody_model.PaymentInitiationRequest(store_id=config.store_id,
                                                                             payment_reference=payment_reference,
                                                                             amount=amount,
                                                                             currency=currency,
@@ -42,9 +43,9 @@ def send_online_payment_blocking():
 def get_payment_details():
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response = stub.GetPayments(
-            ecom_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=1)),
+        client = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = client.GetPayments(
+            kody_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=5)),
             metadata=[("x-api-key", config.api_key)])
 
     logging.info(f"getPaymentDetailsBlocking: response={response}")

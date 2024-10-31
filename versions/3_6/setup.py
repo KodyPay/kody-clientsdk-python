@@ -8,7 +8,7 @@ setup(
     long_description=open('README.md').read(),
     author='Kody Tech Team',
     author_email='tech@kody.com',
-    url='https://github.com/KodyPay/kody-clientsdk-python',
+    url='https://github.com/KodyPay/kody-clientsdk-python-3.6',
     packages=find_packages(),
     install_requires=[  # List your dependencies here
         'grpcio==1.48.2',
