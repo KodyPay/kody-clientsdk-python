@@ -14,7 +14,7 @@ from ..config import load_config
 config = load_config()
 
 
-def send_online_payment_blocking():
+def send_online_payment():
     amount = 314
     payment_reference = "pay_" + str(uuid4())
     currency = "GBP"
@@ -37,7 +37,7 @@ def send_online_payment_blocking():
                                                                             expiry=expiry),
                                         metadata=[("x-api-key", config.api_key)])
 
-    logging.info(f"sendOnlinePaymentBlocking: response={response}")
+    logging.info(f"sendOnlinePayment: response={response}")
 
 
 def get_payment_details():
@@ -48,11 +48,11 @@ def get_payment_details():
             kody_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=5)),
             metadata=[("x-api-key", config.api_key)])
 
-    logging.info(f"getPaymentDetailsBlocking: response={response}")
+    logging.info(f"getPaymentDetails: response={response}")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    send_online_payment_blocking()
+    send_online_payment()
     get_payment_details()

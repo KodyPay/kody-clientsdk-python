@@ -8,26 +8,27 @@ from ..config import load_config
 
 config = load_config()
 
-
-def send_terminal_payment() -> None:
-    show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
+def request_refund() -> None:
+    # UUID
+    order_id="" #Use an existing order_id
 
     # Big Decimal
-    amount = "3.14"
+    amount = "" #Amount must be equal or less than the payment amount
+    logging.info(
+        f"requestRefund: store_id={config.store_id}, order_id={order_id}, amount={amount}")
 
     with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
         client = kody_client.KodyPayTerminalServiceStub(channel)
-        response_iterator = client.Pay(
-            kody_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount,
-                                  show_tips=show_tips),
+        response_iterator = client.Refund(
+            kody_model.RefundRequest(store_id=config.store_id, order_id=order_id,
+                                     amount=amount),
             metadata=[("x-api-key", config.api_key)]
         )
 
         for response in response_iterator:
-            logging.info(f"sendTerminalPaymentRequest: response={response}")
-
+            logging.info(f"requestRefund: response={response}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    send_terminal_payment()
+    request_refund()

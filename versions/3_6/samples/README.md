@@ -26,6 +26,7 @@ Below are the available examples you can find in the `samples` subproject:
 - Terminal payments
     - `list_terminals.py`
     - `process_payment.py`
+    - `refund_payment.py`
 
 ```bash
 python3 -m samples.terminal.list_terminals
