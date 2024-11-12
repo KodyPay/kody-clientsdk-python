@@ -283,6 +283,55 @@ class CancelResponse:
     status: PaymentStatus
 ````
 
+### Refund Terminal Payment
+
+#### RefundRequest - Refund Request
+```python
+@dataclass
+class RefundRequest:
+    store_id: str
+    order_id: str
+    amount: float
+```
+
+Request parameters:
+- `store_id` - the ID of your assigned store
+- `order_id` - the ID of the order that needs refunding
+- `amount` - amount as a 2.dp decimal number, such as `"1.00"`
+
+
+#### RefundResponse - Refund Response
+
+````python
+class RefundStatus(Enum):
+    PENDING = 0
+    REQUESTED = 1
+    FAILED = 2
+    UNRECOGNIZED = -1
+
+@dataclass
+class RefundResponse:
+    refund_status: RefundStatus
+    order_id: str  # the ID of the order that needs refunding
+    failure_reason: Optional[str] = None  # Optional, only populated on failure
+    receipt_json: Optional[str] = None  # Optional, json blob for receipt data
+    date_created: datetime  # Timestamp when the response was created
+````
+
+#### Python Demo
+````python
+import kody_clientsdk_python.pay.v1.pay_pb2 as kody_model
+import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
+
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyPayTerminalServiceStub(channel)
+metadata = [("x-api-key", "API KEY")]
+
+# Make the client call with request and metadata
+refund_request = kody_model.RefundRequest(store_id="STORE ID", order_id="ORDER ID", amount="65.50")
+refund_response = kody_service.Refund(refund_request, metadata=metadata)
+````
+
 ### Online Payments
 #### PaymentInitiationRequest - Online payment request
 The online payment request requires the following parameters:
