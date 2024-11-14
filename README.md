@@ -73,7 +73,7 @@ The test and live API calls are always compatible, only changing credentials and
 
 ### API Authentication
 
-Every client library request authenticates with the server using a `store id` and metadata field `x-api-key`.
+Every client library request authenticates with the server using a `store id` and a metadata field `x-api-key`.
 
 Example: 
 ````python
