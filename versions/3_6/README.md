@@ -14,7 +14,7 @@ The SDK is generated from Protobuf gRPC protocols to facilitate communication wi
 Install the Kody Python Client SDK using the following command:
 
 ```bash 
-pip install https://github.com/KodyPay/kody-clientsdk-python-3.6/releases/download/v<version>/kody_clientsdk_python-<version>.tar.gz
+pip install https://github.com/KodyPay/kody-clientsdk-python/releases/download/v<version>/kody_clientsdk_python-<version>.tar.gz
 ```
 
 Go to [Available releases](https://github.com/KodyPay/kody-clientsdk-python-3.6/releases) to see the available versions for this Client using version 3.6.
