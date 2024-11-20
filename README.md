@@ -314,7 +314,6 @@ class RefundResponse:
     refund_status: RefundStatus
     order_id: str  # the ID of the order that needs refunding
     failure_reason: Optional[str] = None  # Optional, only populated on failure
-    receipt_json: Optional[str] = None  # Optional, json blob for receipt data
     date_created: datetime  # Timestamp when the response was created
 ````
 
