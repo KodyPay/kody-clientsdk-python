@@ -313,8 +313,11 @@ class RefundStatus(Enum):
 class RefundResponse:
     refund_status: RefundStatus
     order_id: str  # the ID of the order that needs refunding
+    total_paid_amount: str  # the original transaction amount
+    total_amount_refunded: str  # the amount that is approved and refunded
+    remaining_amount: str  # total_paid_amount minus total_amount_refunded
+    total_amount_requested: str  # the total amount that is being requested ( both approved and pending )
     failure_reason: Optional[str] = None  # Optional, only populated on failure
-    receipt_json: Optional[str] = None  # Optional, json blob for receipt data
     date_created: datetime  # Timestamp when the response was created
 ````
 
