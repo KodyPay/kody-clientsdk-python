@@ -319,6 +319,7 @@ class RefundResponse:
     total_amount_requested: str  # the total amount that is being requested ( both approved and pending )
     failure_reason: Optional[str] = None  # Optional, only populated on failure
     date_created: datetime  # Timestamp when the response was created
+    payment_transaction_id: str # the ID of the payment that needs refunding
 ````
 
 #### Python Demo
@@ -379,6 +380,58 @@ class ErrorType(Enum):
 class Error:
     type: ErrorType  # Enum for the error type
     message: str  # Error message
+````
+
+### Online Refund Payment
+#### RefundRequest - Refund Request
+```python
+@dataclass
+class RefundRequest:
+    store_id: str
+    payment_id: str
+    amount: float
+```
+
+Request parameters:
+- `store_id` - the ID of your assigned store
+- `payment_id` - the unique identifier created by Kody
+- `amount` - amount as a 2.dp decimal number, such as `"1.00"`
+
+
+#### RefundResponse - Refund Response
+
+````python
+class RefundStatus(Enum):
+    PENDING = 0
+    REQUESTED = 1
+    FAILED = 2
+    UNRECOGNIZED = -1
+
+@dataclass
+class RefundResponse:
+    refund_status: RefundStatus
+    payment_id: str # The unique identifier created by Kody
+    total_paid_amount: str  # the original transaction amount
+    total_amount_refunded: str  # the amount that is approved and refunded
+    remaining_amount: str  # total_paid_amount minus total_amount_refunded
+    total_amount_requested: str  # the total amount that is being requested ( both approved and pending )
+    failure_reason: Optional[str] = None  # Optional, only populated on failure
+    date_created: datetime  # Timestamp when the response was created
+    payment_transaction_id: str # the ID of the payment that needs refunding
+````
+
+#### Python Demo
+````python
+import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
+import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
+
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+metadata = [("x-api-key", "API KEY")]
+
+# Make the client call with request and metadata
+refund_request = kody_model.RefundRequest(store_id="STORE ID", payment_id="PAYMENT ID", amount="65.50")
+refund_response = kody_service.Refund(refund_request, metadata=metadata)
 ````
 
 ## More sample code
