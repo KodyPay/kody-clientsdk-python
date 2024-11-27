@@ -403,7 +403,7 @@ Request parameters:
 ````python
 class RefundStatus(Enum):
     PENDING = 0
-    REQUESTED = 1
+    REQUESTED = 1 # Successfully requested a refund
     FAILED = 2
     UNRECOGNIZED = -1
 
