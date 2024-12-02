@@ -185,7 +185,6 @@ class PaymentMethodType(Enum):
 
 class PaymentMethod:
     payment_method_type: PaymentMethodType
-    activate_qr_code_scanner: bool
     
 @dataclass
 class PayRequest:
@@ -203,7 +202,6 @@ Request parameters:
 - `show_tips` - (optional) whether to show (true) or hide (false) the tip options. Default is (false)
 - `payment_method` - (optional) Settings to enable going straight to QR scanning
   - `payment_method_type` - Payment method type: CARD (default), ALIPAY, WECHAT
-  - `activate_qr_code_scanner` - Flag to activate the terminal camera to scan the customer's QR Code (true), or display the payment method type QR Code for the user to scan (false, default).
 #### PayResponse : Payment Response
 
 ````python
