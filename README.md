@@ -201,7 +201,7 @@ Request parameters:
 - `terminal_id` - the serial number of the terminal that will process the payment request. This number is returned by the [list of terminals request](#get-list-of-terminals), or can be found on the back label of the hardware.
 - `amount` - amount as a 2.dp decimal number, such as `"1.00"`
 - `show_tips` - (optional) whether to show (true) or hide (false) the tip options. Default is (false)
-- `payment_method` - (optional) Enable it to go straight to QR scanning
+- `payment_method` - (optional) Settings to enable going straight to QR scanning
   - `payment_method_type` - Payment method type: ALIPAY, WECHAT
   - `activate_qr_code_scanner` - Flag to activate the terminal camera to scan the customer's QR Code (true), or display the payment method type QR Code for the user to scan (false, default).
 #### PayResponse : Payment Response
