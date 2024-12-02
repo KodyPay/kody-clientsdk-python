@@ -10,10 +10,11 @@ config = load_config()
 
 
 def send_terminal_payment() -> None:
-    show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
+    show_tips = True
     payment_method = kody_model.PaymentMethod(
-        payment_method_type=input("\n\nChoose payment method type (ALIPAY, WECHAT or CARD (default):")
+        payment_method_type="ALIPAY"
     )
+
     # Big Decimal
     amount = "3.14"
 
