@@ -12,7 +12,7 @@ config = load_config()
 def send_terminal_payment() -> None:
     show_tips = True
     payment_method = kody_model.PaymentMethod(
-        payment_method_type="ALIPAY"
+        payment_method_type="CARD" # ALIPAY, WECHAT
     )
 
     # Big Decimal
