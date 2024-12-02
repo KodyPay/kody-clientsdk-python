@@ -10,7 +10,10 @@ config = load_config()
 
 
 def send_terminal_payment() -> None:
-    show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
+    show_tips = True
+    payment_method = kody_model.PaymentMethod(
+        payment_method_type="CARD" # ALIPAY, WECHAT
+    )
 
     # Big Decimal
     amount = "3.14"
@@ -19,7 +22,7 @@ def send_terminal_payment() -> None:
         client = kody_client.KodyPayTerminalServiceStub(channel)
         response_iterator = client.Pay(
             kody_model.PayRequest(store_id=config.store_id, terminal_id=config.terminal_id, amount=amount,
-                                  show_tips=show_tips),
+                                  show_tips=show_tips, payment_method=payment_method),
             metadata=[("x-api-key", config.api_key)]
         )
 

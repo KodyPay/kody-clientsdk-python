@@ -178,12 +178,21 @@ This screen can be closed (by tapping the `X` icon) to access other terminal fea
 
 #### PayRequest - Payment Request 
 ```python
+class PaymentMethodType(Enum):
+    CARD = 0
+    ALIPAY = 1
+    WECHAT = 2
+
+class PaymentMethod:
+    payment_method_type: PaymentMethodType
+    
 @dataclass
 class PayRequest:
     store_id: str
     terminal_id: str
     amount: float
     show_tips: bool
+    payment_method: PaymentMethod
 ```
 
 Request parameters:
@@ -191,8 +200,8 @@ Request parameters:
 - `terminal_id` - the serial number of the terminal that will process the payment request. This number is returned by the [list of terminals request](#get-list-of-terminals), or can be found on the back label of the hardware.
 - `amount` - amount as a 2.dp decimal number, such as `"1.00"`
 - `show_tips` - (optional) whether to show (true) or hide (false) the tip options. Default is (false)
-
-
+- `payment_method` - (optional) Settings to enable going straight to QR scanning
+  - `payment_method_type` - Payment method type: CARD (default), ALIPAY, WECHAT
 #### PayResponse : Payment Response
 
 ````python
