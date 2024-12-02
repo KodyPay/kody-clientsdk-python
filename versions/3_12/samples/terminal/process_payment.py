@@ -13,9 +13,7 @@ def send_terminal_payment() -> None:
     show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
     payment_method = kody_model.PaymentMethod(
         payment_method_type="ALIPAY",
-        # Only one of the two must be set
-        # token="QR TOKEN"
-        # activate_qr_code_scanner=True
+        activate_qr_code_scanner=True
     )
     # Big Decimal
     amount = "3.14"
