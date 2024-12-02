@@ -12,8 +12,8 @@ config = load_config()
 def send_terminal_payment() -> None:
     show_tips = bool(input("\n\nDo you want to enable Terminal to show Tips (True/False):"))
     payment_method = kody_model.PaymentMethod(
-        payment_method_type="PAYMENT METHOD TYPE",
-        activate_qr_code_scanner=True
+        payment_method_type=input("\n\nChoose payment method type (ALIPAY, WECHAT or CARD (default):"),
+        activate_qr_code_scanner=bool(input("\n\nDo you want to enable QR code scanning? (True/False):"))
     )
     # Big Decimal
     amount = "3.14"
