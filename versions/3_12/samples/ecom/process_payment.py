@@ -7,6 +7,7 @@ from uuid import uuid4
 import grpc
 import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
 import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
+from kody_clientsdk_python.sdk.common.pagination_pb2 import PageCursor
 
 from ..config import load_config
 
