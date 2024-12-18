@@ -5,9 +5,8 @@ import random
 from uuid import uuid4
 
 import grpc
-import kody_clientsdk_python.ecom.v1.ecom_pb2 as ecom_model
-import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as ecom_grpc_client
-from kody_clientsdk_python.sdk.common.pagination_pb2 import PageCursor
+import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
+import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
 
 from samples.config import load_config
 
@@ -19,15 +18,15 @@ def send_online_payment():
     currency = "GBP"
     order_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     return_url = "returnUrl"
-    expiry = ecom_model.PaymentInitiationRequest.ExpirySettings(
+    expiry = kody_model.PaymentInitiationRequest.ExpirySettings(
         show_timer=True,
         expiring_seconds=1900
     )
 
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response = stub.InitiatePayment(ecom_model.PaymentInitiationRequest(store_id=config.store_id,
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.InitiatePayment(kody_model.PaymentInitiationRequest(store_id=config.store_id,
                                                                             payment_reference=payment_reference,
                                                                             amount=amount,
                                                                             currency=currency,
@@ -38,13 +37,25 @@ def send_online_payment():
 
     logging.info(f"sendOnlinePayment: response={response}")
 
-
 def get_payment_details():
+    #UUID
+    payment_id = "" #Use an existing payment_id
+
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        stub = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response = stub.GetPayments(
-            ecom_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=1)),
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.PaymentDetails(
+            kody_model.PaymentDetailsRequest(store_id=config.store_id, payment_id = payment_id),
+            metadata=[("x-api-key", config.api_key)])
+
+    logging.info(f"getPaymentDetails: response={response}")
+
+def get_payments():
+    with grpc.secure_channel(target=config.address,
+                             credentials=grpc.ssl_channel_credentials()) as channel:
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.GetPayments(
+            kody_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=5)),
             metadata=[("x-api-key", config.api_key)])
 
     logging.info(f"getPaymentDetails: response={response}")
@@ -54,4 +65,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     send_online_payment()
-    get_payment_details()
+    get_payments()
