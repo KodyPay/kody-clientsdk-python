@@ -27,8 +27,8 @@ def send_online_payment():
 
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        client = kody_client.KodyEcomPaymentsServiceStub(channel)
-        response = client.InitiatePayment(kody_model.PaymentInitiationRequest(store_id=config.store_id,
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.InitiatePayment(kody_model.PaymentInitiationRequest(store_id=config.store_id,
                                                                             payment_reference=payment_reference,
                                                                             amount=amount,
                                                                             currency=currency,
@@ -39,12 +39,24 @@ def send_online_payment():
 
     logging.info(f"sendOnlinePayment: response={response}")
 
-
 def get_payment_details():
+    #UUID
+    payment_id = "" #Use an existing payment_id
+
     with grpc.secure_channel(target=config.address,
                              credentials=grpc.ssl_channel_credentials()) as channel:
-        client = kody_client.KodyEcomPaymentsServiceStub(channel)
-        response = client.GetPayments(
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.PaymentDetails(
+            kody_model.PaymentDetailsRequest(store_id=config.store_id, payment_id = payment_id),
+            metadata=[("x-api-key", config.api_key)])
+
+    logging.info(f"getPaymentDetails: response={response}")
+
+def get_payments():
+    with grpc.secure_channel(target=config.address,
+                             credentials=grpc.ssl_channel_credentials()) as channel:
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response = kody_service.GetPayments(
             kody_model.GetPaymentsRequest(store_id=config.store_id, page_cursor=PageCursor(page_size=5)),
             metadata=[("x-api-key", config.api_key)])
 
@@ -55,4 +67,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     send_online_payment()
-    get_payment_details()
+    get_payments()

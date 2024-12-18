@@ -1,8 +1,8 @@
 import logging
 
 import grpc
-import kody_clientsdk_python.ecom.v1.ecom_pb2 as ecom_model
-import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as ecom_grpc_client
+import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
+import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
 
 from ..config import load_config
 
@@ -18,9 +18,9 @@ def request_refund() -> None:
         f"requestRefund: store_id={config.store_id}, payment_id={payment_id}, amount={amount}")
 
     with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        client = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response_iterator = client.Refund(
-            ecom_model.RefundRequest(store_id=config.store_id, payment_id=payment_id,
+        kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+        response_iterator = kody_service.Refund(
+            kody_model.RefundRequest(store_id=config.store_id, payment_id=payment_id,
                                      amount=amount),
             metadata=[("x-api-key", config.api_key)]
         )

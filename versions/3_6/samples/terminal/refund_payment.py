@@ -18,8 +18,8 @@ def request_refund() -> None:
         f"requestRefund: store_id={config.store_id}, order_id={order_id}, amount={amount}")
 
     with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        client = kody_client.KodyPayTerminalServiceStub(channel)
-        response_iterator = client.Refund(
+        kody_service = kody_client.KodyPayTerminalServiceStub(channel)
+        response_iterator = kody_service.Refund(
             kody_model.RefundRequest(store_id=config.store_id, order_id=order_id,
                                      amount=amount),
             metadata=[("x-api-key", config.api_key)]

@@ -391,6 +391,109 @@ class Error:
     message: str  # Error message
 ````
 
+### Get Payments
+
+The payment details request requires the following parameters:
+- `storeId` - the ID of your assigned store
+- `pageCursor` - set pagination settings.
+  - `page` - set an offset of the results. Value of 0 will return payments from the beginning of the data set.
+  - `pageSize` - the number of results to be returned per page. Value of 1 will return one record.
+
+#### GetPaymentsRequest: Get Payments Request
+````python
+@dataclass
+class GetPaymentsRequest:
+    store_id: str
+    page_cursor: PageCursor
+
+class PageCursor:
+    page: int
+    pageSize: int
+````
+
+#### PaymentDetails: Payment Details
+````python
+@dataclass
+class PaymentDetails:
+  payment_id: str # The unique identifier created by Kody
+  payment_reference :str # Your unique payment reference that was set during the initiation
+  order_id: str # Your identifier of the order. It doesn't have to be unique, for example when the same order has multiple payments.
+  order_metadata: Optional[str] = None # A data set that can be used to store information about the order and used in the payment details. For example a JSON with checkout items. It will be useful as evidence to challenge chargebacks or any risk data.
+  status: PaymentStatus
+  payment_data_json: Optional[str] = None # json blob containing payment data
+  date_created: Optional[datetime] # Optional timestamp for date created
+  date_paid: Optional[datetime] # Optional timestamp for date paid
+  psp_reference: Optional[str] = None # Optional psp_reference
+````
+
+### Get Online Payment Details
+
+The payment details request requires the following parameters:
+- `store_id` - the ID of your assigned store
+- `payment_identifier` - One of the two parameters below must be set. They are mutually exclusive
+  - `payment_id` - The unique identifier created by Kody
+  - `payment_reference` - Your unique payment reference that was set during the initiation
+
+````python
+@dataclass
+class PaymentDetailsRequest:
+    store_id: str # Your Kody store id
+    payment_id: Optional[str] # The unique identifier created by Kody
+    payment_reference: Optional[str] # Your unique payment reference that was set during the initiation
+````
+
+#### PaymentDetailsResponse : Payment Details Response
+
+````python
+class PaymentStatus(Enum):
+    PENDING = 0
+    SUCCESS = 1
+    FAILED = 2
+    CANCELLED = 3
+    EXPIRED = 4
+
+class Type(Enum):
+    UNKNOWN = 0
+    NOT_FOUND = 1
+    INVALID_REQUEST = 2
+  
+@dataclass
+class Error:
+    type: Type
+    message: str
+
+@dataclass
+class Response:
+    payment_id: str # The unique identifier created by Kody
+    payment_reference :str # Your unique payment reference that was set during the initiation
+    order_id: str # Your identifier of the order. It doesn't have to be unique, for example when the same order has multiple payments.
+    order_metadata: Optional[str] = None # A data set that can be used to store information about the order and used in the payment details. For example a JSON with checkout items. It will be useful as evidence to challenge chargebacks or any risk data.
+    status: PaymentStatus
+    payment_data_json: Optional[str] = None # json blob containing payment data
+    date_created: Optional[datetime] # Optional timestamp for date created
+    date_paid: Optional[datetime] # Optional timestamp for date paid
+    psp_reference: Optional[str] = None # Optional psp_reference
+
+@dataclass    
+class PaymentDetailsResponse:
+    response: Response
+    error: Error
+````
+
+#### Python Demo
+````python
+import kody_clientsdk_python.ecom.v1.ecom_pb2 as kody_model
+import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as kody_client
+
+channel = grpc.secure_channel("HOSTNAME", grpc.ssl_channel_credentials())
+kody_service = kody_client.KodyEcomPaymentsServiceStub(channel)
+metadata = [("x-api-key", "API KEY")]
+
+# Make the client call with request and metadata
+payment_details_request = kody_model.PaymentDetailsRequest(store_id="STORE ID", payment_id="PAYMENT ID")
+payment_details_response = kody_service.PaymentDetails(payment_details_request, metadata=metadata)
+````
+
 ### Online Refund Payment
 #### RefundRequest - Refund Request
 ```python
