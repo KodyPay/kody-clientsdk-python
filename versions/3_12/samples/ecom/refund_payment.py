@@ -1,34 +1,40 @@
-import logging
-
+from datetime import datetime
 import grpc
 import kody_clientsdk_python.ecom.v1.ecom_pb2 as ecom_model
 import kody_clientsdk_python.ecom.v1.ecom_pb2_grpc as ecom_grpc_client
 
-from ..config import load_config
-
-config = load_config()
-
 def request_refund() -> None:
-    #UUID
-    payment_id = "" #Use an existing payment_id
+    # TODO: Replace this with the testing or live environment
+    address = "grpc-staging.kodypay.com"
+    # TODO: Replace this with your Store ID
+    store_id = ""
+    # TODO: Replace this with your API key
+    api_key = ""
+    # TODO: Replace this with your payment ID
+    payment_id = ""
+    # TODO: Replace this with your amount
+    amount = "1"
 
-    # Big Decimal
-    amount = "0.01" #Amount must be equal or less than the payment amount
-    logging.info(
-        f"requestRefund: store_id={config.store_id}, payment_id={payment_id}, amount={amount}")
-
-    with grpc.secure_channel(target=config.address, credentials=grpc.ssl_channel_credentials()) as channel:
-        kody_service = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
-        response_iterator = kody_service.Refund(
-            ecom_model.RefundRequest(store_id=config.store_id, payment_id=payment_id,
-                                     amount=amount),
-            metadata=[("x-api-key", config.api_key)]
+    with grpc.secure_channel(target=address, credentials=grpc.ssl_channel_credentials()) as channel:
+        client = ecom_grpc_client.KodyEcomPaymentsServiceStub(channel)
+        response_iterator = client.Refund(
+            ecom_model.RefundRequest(
+                store_id=store_id,
+                payment_id=payment_id,
+                amount=amount
+            ),
+            metadata=[("x-api-key", api_key)]
         )
 
         for response in response_iterator:
-            logging.info(f"requestRefund: response={response}")
+            print(f"Status: {ecom_model.RefundResponse.RefundStatus.Name(response.status)}")
+            print(f"Order ID: {response.payment_id}")
+            print(f"Date Created: {datetime.fromtimestamp(response.date_created.seconds)}")
+            print(f"Total Paid Amount: {response.total_paid_amount}")
+            print(f"Total Amount Refunded: {response.total_amount_refunded}")
+            print(f"Remaining Amount: {response.remaining_amount}")
+            print(f"Total Amount Requested: {response.total_amount_requested}")
+            print(f"Payment Transaction ID: {response.paymentTransactionId}")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-
     request_refund()
