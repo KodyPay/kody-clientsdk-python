@@ -1,2 +1,2 @@
 grpcio-tools
-kody-clientsdk-python
+https://github.com/KodyPay/kody-clientsdk-python/releases/download/v0.1.7/kody_clientsdk_python-0.1.7.tar.gz
