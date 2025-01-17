@@ -58,8 +58,8 @@ jobs:
           cd ..
       - name: Move Proto Folder
         run: |
-          cp -R kp-protocols-clientsdk/src/main/proto versions/3_6/proto
-          rm -rf kp-protocols-clientsdk
+          cp -R proto-repo/src/main/proto versions/3_6/proto
+          rm -rf proto-repo
       - name: Generate GRPC Sources
         run: |
           cd versions/3_6
@@ -117,8 +117,8 @@ jobs:
           cd ..
       - name: Move Proto Folder
         run: |
-          cp -R kp-protocols-clientsdk/src/main/proto versions/3_12/proto
-          rm -rf kp-protocols-clientsdk
+          cp -R proto-repo/src/main/proto versions/3_12/proto
+          rm -rf proto-repo
       - name: Generate GRPC Sources
         run: |
           cd versions/3_12
