@@ -5,13 +5,13 @@ import kody_clientsdk_python.pay.v1.pay_pb2_grpc as kody_client
 
 def send_terminal_payment():
     # TODO: Replace this with the testing or live environment
-    address = "grpc-development.kodypay.com"
+    address = "grpc-staging.kodypay.com"
     # TODO: Replace this with your Store ID
-    store_id = "8363bb20-b3b5-4323-b109-e230e55ed052"
+    store_id = ""
     # TODO: Replace this with your Terminal ID
-    terminal_id = "S1F2-000158241139841"
+    terminal_id = ""
     # TODO: Replace this with your API key
-    api_key = "FS0i6P4p6-PTlMCDwGbX11JXIz-wFy4JjspNc_DsR7mF"
+    api_key = ""
     # TODO: Replace this with your amount
     amount = "60"
 
