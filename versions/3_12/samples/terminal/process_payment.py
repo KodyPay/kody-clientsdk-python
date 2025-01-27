@@ -45,6 +45,7 @@ def send_terminal_payment():
                 print(f"Status: {status}")
                 print(f"Receipt JSON: {response.payment_data.receipt_json}")
                 print(f"Date Created: {datetime.fromtimestamp(response.date_created.seconds)}")
+                print(f"Date Paid: {datetime.fromtimestamp(response.payment_data.date_paid.seconds)}")
                 print(f"Total Amount: {response.payment_data.total_amount}")
                 print(f"Sale Amount: {response.payment_data.sale_amount}")
                 print(f"Tips Amount: {response.payment_data.tips_amount}")

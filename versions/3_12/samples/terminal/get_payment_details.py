@@ -27,6 +27,7 @@ def get_terminal_payment_details():
             print(f"Status: {status}")
             print(f"Receipt JSON: {payment_details_response.payment_data.receipt_json}")
             print(f"Date Created: {datetime.fromtimestamp(payment_details_response.date_created.seconds)}")
+            print(f"Date Paid: {datetime.fromtimestamp(payment_details_response.payment_data.date_paid.seconds)}")
             print(f"Total Amount: {payment_details_response.payment_data.total_amount}")
             print(f"Sale Amount: {payment_details_response.payment_data.sale_amount}")
             print(f"Tips Amount: {payment_details_response.payment_data.tips_amount}")
