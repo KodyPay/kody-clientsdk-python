@@ -25,12 +25,15 @@ def get_terminal_payment_details():
         if payment_details_response.status:
             status = kody_model.PaymentStatus.Name(payment_details_response.status)
             print(f"Status: {status}")
-            print(f"Receipt JSON: {payment_details_response.receipt_json}")
-            print(f"Total Amount: {payment_details_response.total_amount}")
+            print(f"Receipt JSON: {payment_details_response.payment_data.receipt_json}")
             print(f"Date Created: {datetime.fromtimestamp(payment_details_response.date_created.seconds)}")
-            print(f"Date Paid: {datetime.fromtimestamp(payment_details_response.date_paid.seconds)}")
+            print(f"Total Amount: {payment_details_response.payment_data.total_amount}")
+            print(f"Sale Amount: {payment_details_response.payment_data.sale_amount}")
+            print(f"Tips Amount: {payment_details_response.payment_data.tips_amount}")
+            print(f"Payment method type: {kody_model.PaymentMethodType.Name(payment_details_response.payment_data.payment_method_type)}")
+            print("Accepts only: " + ', '.join(kody_model.PayRequest.PaymentMethods.Name(paymentMethod) for paymentMethod in payment_details_response.accepts_only))
             if status == "SUCCESS":
-                print(f"External Payment Reference: {payment_details_response.ext_payment_ref}")
+                print(f"PSP Reference: {payment_details_response.psp_reference}")
             else:
                 print(f"Failure Reason: {payment_details_response.failure_reason}")
 
