@@ -16,13 +16,30 @@ def send_terminal_payment():
     amount = "60"
 
     show_tips = True
+
+    # Options: CARD, E-WALLET
+    # Option 1: CARD
     payment_method = kody_model.PaymentMethod(
-        # Options: CARD, E-WALLET
-        payment_method_type="CARD"
+        payment_method_type=kody_model.PaymentMethodType.CARD,
     )
 
-    # Options: VISA, MASTERCARD, AMEX, BAN_CONTACT, CHINA_UNION_PAY, MAESTRO, DINERS = 6, DISCOVER, JCB, ALIPAY, WECHAT
-    accepts_only=["VISA", "MASTERCARD", "AMEX"]
+    # Options: VISA, MASTERCARD, AMEX, BAN_CONTACT, CHINA_UNION_PAY, MAESTRO, DINERS, DISCOVER, JCB, ALIPAY, WECHAT
+    accepts_only = [
+        kody_model.PayRequest.PaymentMethods.VISA,
+        kody_model.PayRequest.PaymentMethods.MASTERCARD,
+    ]
+
+    # Option 2: E-WALLET
+    # payment_method = kody_model.PaymentMethod(
+    #     payment_method_type=kody_model.PaymentMethodType.E_WALLET,
+    # )
+
+    # # Options: VISA, MASTERCARD, AMEX, BAN_CONTACT, CHINA_UNION_PAY, MAESTRO, DINERS, DISCOVER, JCB, ALIPAY, WECHAT
+    # # if you set E_WALLET, you have to at least add one of the following: ALIPAY, WECHAT
+    # accepts_only = [
+    #     kody_model.PayRequest.PaymentMethods.ALIPAY,
+    #     kody_model.PayRequest.PaymentMethods.WECHAT,
+    # ]
 
     with grpc.secure_channel(target=address, credentials=grpc.ssl_channel_credentials()) as channel:
         client = kody_client.KodyPayTerminalServiceStub(channel)
