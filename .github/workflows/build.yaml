@@ -38,7 +38,7 @@ jobs:
   build-python-3_6:
     needs:
       - tagging
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
   build-publish-python-3_12:
     needs:
       - tagging
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
