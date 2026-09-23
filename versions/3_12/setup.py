@@ -14,6 +14,7 @@ setup(
     packages=find_packages(),
     install_requires=[  # List your dependencies here
         'grpcio==1.66.1',
-        'protobuf==5.27.2'
+        'protobuf==5.27.2',
+        'googleapis-common-protos==1.70.0'
     ],
 )

@@ -64,7 +64,11 @@ jobs:
         run: |
           cd versions/3_6
           mkdir generated
-          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --grpc_python_out=./generated
+          # google/type/*.proto (e.g. date.proto, imported by ecom.proto) are not bundled with grpc_tools, only
+          # google/protobuf/*. They ship with googleapis-common-protos, which also provides the generated
+          # google.type modules at runtime, so they are put on the include path but not generated here.
+          COMMON_PROTOS=$(python -c "import pathlib, google.type.date_pb2 as m; print(pathlib.Path(m.__file__).parents[2])")
+          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto -I"$COMMON_PROTOS" --python_out=./generated --grpc_python_out=./generated
           rm -rf proto
       - name: Add init files
         run: |
@@ -123,7 +127,11 @@ jobs:
         run: |
           cd versions/3_12
           mkdir generated
-          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto --python_out=./generated --grpc_python_out=./generated
+          # google/type/*.proto (e.g. date.proto, imported by ecom.proto) are not bundled with grpc_tools, only
+          # google/protobuf/*. They ship with googleapis-common-protos, which also provides the generated
+          # google.type modules at runtime, so they are put on the include path but not generated here.
+          COMMON_PROTOS=$(python -c "import pathlib, google.type.date_pb2 as m; print(pathlib.Path(m.__file__).parents[2])")
+          find ./proto -name "*.proto" -print0 | xargs -0 python -m grpc_tools.protoc -I./proto -I"$COMMON_PROTOS" --python_out=./generated --grpc_python_out=./generated
           rm -rf proto
       - name: Add init files
         run: |

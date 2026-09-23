@@ -1,2 +1,3 @@
 grpcio-tools
+googleapis-common-protos==1.56.3
 https://github.com/KodyPay/kody-clientsdk-python/releases/download/v1.5.4/kody_clientsdk_python-1.5.4.tar.gz
