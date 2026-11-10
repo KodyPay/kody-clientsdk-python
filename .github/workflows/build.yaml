@@ -102,7 +102,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.6'
+          # Minor version only: ubuntu-latest moved to 26.04, which has no 3.12.6 build, so a pinned patch
+          # release can disappear from under the job. The package is py3-none-any either way.
+          python-version: '3.12'
       - name: Upgrade python tools
         run: python -m pip install --upgrade pip build setuptools wheel
       - name: Install twine for publishing
